@@ -1,0 +1,71 @@
+require("dotenv").config();
+var inquirer = require('inquirer');
+var mysql = require('mysql');
+
+var connection = mysql.createConnection({
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password : process.env.DB_PASS,
+    database: "bamazon"
+});
+
+connection.connect();
+
+inquirer.prompt([
+  {
+    message: "What would you like to do?",
+    type: "list",
+    name: "supervisorAction",
+    choices: ["View Product Sales by Department", "Create New Department"]
+  }
+]).then(function (ans) {
+  switch (ans.supervisorAction) {
+    case "View Product Sales by Department":
+      viewSalesByDept()
+      break;
+    case "Create New Department":
+      createNewDept()
+      break;
+  
+    default:
+      break;
+  }
+})
+
+function viewSalesByDept () {
+  var query = "SELECT department_ID, departments.department_name, over_head_costs, product_sales FROM departments JOIN products ON departments.department_name = products.department_name GROUP BY department_ID;"
+  connection.query(query, function (error, res) {
+    if (error) throw error;
+    console.log(res);
+    res.forEach(row => {
+      var totalProfit = row.product_sales - row.over_head_costs
+      console.log(`Department Id: ${row.department_id} Department Name: ${row.department_name} Overhead Costs: ${row.over_head_costs} Product Sales: ${row.product_sales} Total Profit: ${totalProfit}\n`)
+    });
+    connection.end()
+  })
+}
+function createNewDept() {
+  inquirer.prompt([
+    {
+      message: "Please type in the name of the department you would like to add.",
+      type: "input",
+      name: "deptName"
+    },
+    {
+      message: "what is the overhead for this department?",
+      type: "input",
+      name: "overHeadCost"
+    }
+  ]).then(function (ans) {
+    var query = "insert into departments (department_name, over_head_costs) values(?, ?)"
+    connection.query(query, [ans.deptName, parseInt(ans.overHeadCost)], function (error, res) {
+      if (error) throw error;
+      console.log(res);
+      connection.end()
+    })
+  })
+
+
+
+}
