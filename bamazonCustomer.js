@@ -71,12 +71,12 @@ function withdrawProd(prodId, prodQty) {
 console.log("Your total cost for " + prodQty  + " " + productname + " is " + productSales + ". Thank you for your Business!");
      
  var queryOne = "UPDATE products SET stock_quantity = ? where ?";
- var queryTwo = "UPDATE products SET product_sales = ? where ?";
+ //var queryTwo = "UPDATE products SET product_sales = ? where ?";
 
  connection.query(queryOne,[newQuantity, {item_id: prodId}], function (error, res) {
  })
- connection.query(queryTwo, [productSales, { item_id: prodId }], function (error, res) {
-})
+ //connection.query(queryTwo, [productSales, { item_id: prodId }], function (error, res) {
+//})
  }
 
   
